@@ -1,0 +1,51 @@
+REVIVAL MELODIES TEAM PORTAL - CPANEL / SHARED HOSTING
+
+PACKAGE CONTENTS
+  public_html/   Files for the website document root
+  rmt-private/   PHP application, database schema, admin tool and private PDFs
+
+1. Create a MySQL database and a dedicated MySQL user in your hosting panel.
+   Grant that user all privileges on this database. cPanel database names
+   and usernames commonly include your account prefix.
+
+2. Extract this package in your hosting account home directory so
+   public_html and rmt-private are siblings. Do not put rmt-private inside
+   public_html. If public_html already contains a live website, back it up
+   before replacing files.
+
+3. Edit rmt-private/app/config.local.php with the exact database host,
+   database name, username and password from your hosting panel. Keep this
+   file private; it is outside the website document root.
+
+4. Open phpMyAdmin, select the newly-created database, and import
+   rmt-private/schema.sql. This schema intentionally does not create/select
+   a database; it imports into the database you selected.
+
+5. Set the site's PHP version to 8.1 or later. Enable pdo_mysql, fileinfo
+   and mbstring. Ensure file uploads are enabled, upload_max_filesize is at
+   least 10M and post_max_size is at least 12M. Enable HTTPS.
+
+6. Grant PHP permission to write to public_html/uploads and
+   rmt-private/storage/verification. Typical starting permissions are 755;
+   use your hosting provider's guidance rather than making directories
+   world-writable.
+
+7. Create the first admin using the host's Terminal/SSH:
+   php /home/ACCOUNT/rmt-private/create_admin.php "RMT Administrator" admin@example.com "USE-A-UNIQUE-PASSWORD-OF-12-CHARS-OR-MORE"
+   Replace /home/ACCOUNT with the actual hosting account path. If CLI PHP
+   is unavailable, register an account first and change only that account's
+   role to admin in phpMyAdmin:
+   UPDATE users SET role = 'admin' WHERE email = 'admin@example.com';
+
+8. Visit https://your-domain.example/ and test registration, sign-in,
+   verification upload, admin approval, PDF download, meeting permissions
+   and noticeboard posting.
+
+SECURITY
+  - Never move rmt-private into public_html.
+  - Never share or commit config.local.php.
+  - Signed forms stay in rmt-private/storage and downloads require admin
+    authentication.
+  - Back up the database and rmt-private/storage/verification together.
+  - Tailwind utility styles are precompiled into public_html/assets and do
+    not require a browser-side CDN.

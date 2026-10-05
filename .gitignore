@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+public/uploads/*
+!public/uploads/.htaccess
+storage/verification/*
+!storage/.htaccess
+app/config.local.php
+dist/
+.local-preview/
+node_modules/

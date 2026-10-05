@@ -1,0 +1,12 @@
+{
+  "name": "rmt-ministry-portal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tailwind CSS build for the Revival Melodies Team portal",
+  "scripts": {
+    "build:css": "tailwindcss -i ./resources/css/input.css -o ./public/assets/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}
