@@ -22,6 +22,16 @@ After approving the one-time portable-runtime download, prepare the verified loc
 
 Open `http://127.0.0.1:8000/`. The preview provisions an isolated MariaDB database on `127.0.0.1:3307`; its data, logs, and downloaded runtime files are kept under the ignored `.local-preview/` folder and are not included in the hosting ZIP. The demo administrator is `preview.admin@example.test` / `RmtPreview!2026`. Do not reuse this demo account or password in production. Stop the preview with `.\tools\stop-preview.ps1`. To explicitly reset the local demo database, stop the services and run `.\tools\start-preview.ps1 -ResetDatabase`.
 
+### Byet.host deployment
+
+If the Byet.host account has been created and its website document root is `htdocs`, build its upload archive with:
+
+```powershell
+.\tools\package-deployment.ps1 -Target byet
+```
+
+The package is written to `dist\RMT-Byet-Deployment.zip` and contains `htdocs/` alongside the private `rmt-private/` folder. Read `deployment/DEPLOY-BYET.txt` before uploading. If the control panel uses a different web root or will not let you place the private folder outside it, do not upload the package until the layout is confirmed.
+
 1. Create a MySQL database and user, grant the user access to the database, select that database, then import the schema:
 
    ```sh
@@ -70,6 +80,7 @@ Open `http://127.0.0.1:8000/`. The preview provisions an isolated MariaDB databa
   ```
 
   The script creates `dist\RMT-Deployment.zip`. The archive contains `public_html/` and `rmt-private/` as siblings, includes the Apache rewrite rules, and keeps application code, schema, admin tool, configuration, and signed-form storage outside the public document root. Review `deployment/DEPLOY.txt` before extracting the ZIP. Enter the host's database credentials in `rmt-private/app/config.local.php` after extraction.
+- For Byet.host, run `.\tools\package-deployment.ps1 -Target byet`. Its ZIP uses `htdocs/` and `rmt-private/` as siblings. Follow `deployment/DEPLOY-BYET.txt`; verify the account's actual document-root name and ensure the file manager can place `rmt-private/` outside that root.
 - For a custom virtual-host document root, point the site at `public/`, keep `app/` and `storage/` outside the web root, and configure the database through environment variables or `app/config.local.php`.
 - Configure the host-provided MySQL host, database name, user, and password as `DB_HOST`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`.
 - Ensure PHP can write to `public/uploads/` and `storage/verification/`. Profile pictures are public image files; signed PDFs are stored outside the document root and only downloadable by administrators.

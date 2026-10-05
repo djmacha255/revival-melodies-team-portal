@@ -1,18 +1,22 @@
 param(
-    [string]$OutputPath = ""
+    [string]$OutputPath = "",
+    [ValidateSet("cpanel", "byet")]
+    [string]$Target = "cpanel"
 )
 
 $ErrorActionPreference = "Stop"
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 if (-not $OutputPath) {
-    $OutputPath = Join-Path $projectRoot "dist\RMT-Deployment.zip"
+    $archiveName = if ($Target -eq "byet") { "RMT-Byet-Deployment.zip" } else { "RMT-Deployment.zip" }
+    $OutputPath = Join-Path $projectRoot "dist\$archiveName"
 }
 $OutputPath = [System.IO.Path]::GetFullPath($OutputPath)
 $outputDirectory = Split-Path -Parent $OutputPath
 New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null
 
 $stage = Join-Path ([System.IO.Path]::GetTempPath()) ("rmt-deploy-" + [guid]::NewGuid().ToString("N"))
-$publicStage = Join-Path $stage "public_html"
+$publicFolderName = if ($Target -eq "byet") { "htdocs" } else { "public_html" }
+$publicStage = Join-Path $stage $publicFolderName
 $privateStage = Join-Path $stage "rmt-private"
 
 function Copy-DirectoryContents([string]$Source, [string]$Destination) {
@@ -37,7 +41,8 @@ try {
     Set-Content -LiteralPath (Join-Path $privateStorageStage ".htaccess") -Encoding ASCII -Value "Require all denied"
     Copy-Item -LiteralPath (Join-Path $projectRoot "schema.sql") -Destination $privateStage
     Copy-Item -LiteralPath (Join-Path $projectRoot "create_admin.php") -Destination $privateStage
-    Copy-Item -LiteralPath (Join-Path $projectRoot "deployment\DEPLOY.txt") -Destination $stage
+    $deploymentGuide = if ($Target -eq "byet") { "DEPLOY-BYET.txt" } else { "DEPLOY.txt" }
+    Copy-Item -LiteralPath (Join-Path $projectRoot "deployment\$deploymentGuide") -Destination $stage
 
     $sampleConfig = Join-Path $privateStage "app\config.example.php"
     $localConfig = Join-Path $privateStage "app\config.local.php"

@@ -8,6 +8,7 @@ $bootstrapCandidates = $configuredAppPath
     : [
         dirname(__DIR__) . '/app/bootstrap.php',
         dirname(__DIR__) . '/rmt-private/app/bootstrap.php',
+        __DIR__ . '/rmt-private/app/bootstrap.php',
     ];
 $bootstrapPath = null;
 foreach ($bootstrapCandidates as $candidate) {

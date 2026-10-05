@@ -1,0 +1,58 @@
+REVIVAL MELODIES TEAM PORTAL - BYET.HOST FREE HOSTING
+
+PACKAGE CONTENTS
+  htdocs/       Files intended for your website document root
+  rmt-private/  PHP application, database schema, and private PDF storage
+
+BEFORE YOU BEGIN
+  - In the hosting panel, confirm the website's document root. This package
+    assumes the document root is named htdocs. If your panel shows another
+    folder, stop and check before extracting.
+  - Create the database and database user in the hosting panel. Copy the
+    database host/name/user shown there. Do not send database passwords in
+    chat or screenshots.
+
+UPLOAD
+  1. In File Manager or FTP, locate the account directory containing htdocs.
+     Upload RMT-Byet-Deployment.zip to that directory and extract it there.
+  2. Verify that htdocs and rmt-private are siblings. The private folder must
+     NOT be inside htdocs.
+  3. Open rmt-private/app/config.local.php and replace the example host,
+     database name, database user, and password with the exact values shown
+     in the provider's MySQL panel. Keep the password private.
+  4. Select the new database in phpMyAdmin. Import rmt-private/schema.sql.
+     The schema does not create or select the database.
+  5. Open your assigned HTTPS subdomain and test the landing page, registration
+     and login. Confirm that /dashboard and /admin redirect to sign-in until
+     you log in.
+  6. Register your administrator account. In phpMyAdmin, open the selected
+     database's users table and change role from member to admin for your
+     exact admin email address:
+       UPDATE users SET role = 'admin' WHERE email = 'you@example.com';
+     Do not make a public signup administrator.
+  7. Sign in as admin and confirm /admin is accessible. Test meeting and
+     noticeboard. Before testing document uploads, check the host's actual
+     PHP upload_max_filesize and post_max_size. The app's maximum is 10 MiB;
+     do not assume the host permits this until verified.
+
+IF YOUR FILE MANAGER CANNOT ACCESS THE ACCOUNT DIRECTORY ABOVE HTDOCS
+  Stop before uploading the private application inside htdocs. Send a
+  redacted screenshot showing only the folder names and document-root name.
+  The app and signed PDFs should remain outside the web document root.
+
+IMPORTANT FREE-HOSTING PRIVACY WARNING
+  Member profiles can include NIDA numbers and birth dates, and the app
+  accepts signed registration forms. Confirm that the provider's storage
+  permissions, terms, backup options, and privacy requirements are suitable
+  before collecting real member data. Use test data until that is verified.
+  Keep independent backups of both MySQL and rmt-private/storage/verification.
+
+IF SOMETHING FAILS
+  - A database connection error usually means DB_HOST, database name, user,
+    or password does not exactly match the hosting panel.
+  - If the homepage is HTTP 500, check the provider's PHP error log and
+    confirm PHP 8.1+ with pdo_mysql, fileinfo, and mbstring.
+  - If routes return 404, check that the website document root is htdocs and
+    that its .htaccess file was uploaded.
+  - If a PDF upload fails, check actual upload limits and writable
+    permissions for htdocs/uploads and rmt-private/storage/verification.

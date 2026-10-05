@@ -1,5 +1,8 @@
 REVIVAL MELODIES TEAM PORTAL - CPANEL / SHARED HOSTING
 
+For Byet.host, use DEPLOY-BYET.txt and the RMT-Byet-Deployment.zip package
+instead of these public_html-specific instructions.
+
 PACKAGE CONTENTS
   public_html/   Files for the website document root
   rmt-private/   PHP application, database schema, admin tool and private PDFs
