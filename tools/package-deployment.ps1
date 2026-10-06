@@ -36,6 +36,7 @@ function Copy-DirectoryContents([string]$Source, [string]$Destination) {
 try {
     New-Item -ItemType Directory -Force -Path $stage | Out-Null
     if ($Target -ne "byet-htdocs") {
+        New-Item -ItemType Directory -Force -Path $publicStage | Out-Null
         New-Item -ItemType Directory -Force -Path $privateStage | Out-Null
     }
     Copy-Item -LiteralPath (Join-Path $projectRoot "public\index.php") -Destination $publicStage
@@ -90,13 +91,27 @@ try {
     if (Test-Path -LiteralPath $OutputPath) {
         Remove-Item -LiteralPath $OutputPath -Force
     }
+    Add-Type -AssemblyName System.IO.Compression
     Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.ZipFile]::CreateFromDirectory(
-        $stage,
+    $archive = [System.IO.Compression.ZipFile]::Open(
         $OutputPath,
-        [System.IO.Compression.CompressionLevel]::Optimal,
-        $false
+        [System.IO.Compression.ZipArchiveMode]::Create
     )
+    try {
+        $stagePrefix = $stage.TrimEnd('\', '/') + [System.IO.Path]::DirectorySeparatorChar
+        Get-ChildItem -LiteralPath $stage -File -Recurse | ForEach-Object {
+            $relativePath = $_.FullName.Substring($stagePrefix.Length).Replace('\', '/')
+            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+                $archive,
+                $_.FullName,
+                $relativePath,
+                [System.IO.Compression.CompressionLevel]::Optimal
+            ) | Out-Null
+        }
+    }
+    finally {
+        $archive.Dispose()
+    }
 
     Write-Output "Deployment archive created: $OutputPath"
     Write-Output "Archive entries:"
