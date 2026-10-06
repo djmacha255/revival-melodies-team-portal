@@ -30,7 +30,7 @@ If the Byet.host account has been created and its website document root is `htdo
 .\tools\package-deployment.ps1 -Target byet
 ```
 
-The package is written to `dist\RMT-Byet-Deployment.zip` and contains `htdocs/` alongside the private `rmt-private/` folder. Read `deployment/DEPLOY-BYET.txt` before uploading. If the control panel uses a different web root or will not let you place the private folder outside it, do not upload the package until the layout is confirmed.
+The package is written to `dist\RMT-Byet-Deployment.zip` and contains `htdocs/` alongside the private `rmt-private/` folder. To prefill the database host/name/user from your provider panel without including its password, pass the three `-Database...` options. Read `deployment/DEPLOY-BYET.txt` before uploading. If the control panel uses a different web root or will not let you place the private folder outside it, do not upload the package until the layout is confirmed.
 
 1. Create a MySQL database and user, grant the user access to the database, select that database, then import the schema:
 

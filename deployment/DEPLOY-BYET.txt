@@ -19,7 +19,11 @@ UPLOAD
      NOT be inside htdocs.
   3. Open rmt-private/app/config.local.php and replace the example host,
      database name, database user, and password with the exact values shown
-     in the provider's MySQL panel. Keep the password private.
+     in the provider's MySQL panel. On this free plan the database username
+     is your hosting-panel username, and the database password is your
+     vPanel password. The generated package has the confirmed host/name/user
+     filled in; replace ENTER_VPANEL_PASSWORD_HERE yourself in File Manager.
+     Do not share the password in chat or screenshots.
   4. Select the new database in phpMyAdmin. Import rmt-private/schema.sql.
      The schema does not create or select the database.
   5. Open your assigned HTTPS subdomain and test the landing page, registration

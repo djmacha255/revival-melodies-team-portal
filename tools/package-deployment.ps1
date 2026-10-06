@@ -1,7 +1,10 @@
 param(
     [string]$OutputPath = "",
     [ValidateSet("cpanel", "byet")]
-    [string]$Target = "cpanel"
+    [string]$Target = "cpanel",
+    [string]$DatabaseHost = "",
+    [string]$DatabaseName = "",
+    [string]$DatabaseUser = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -48,6 +51,22 @@ try {
     $localConfig = Join-Path $privateStage "app\config.local.php"
     Copy-Item -LiteralPath $sampleConfig -Destination $localConfig
     Remove-Item -LiteralPath $sampleConfig
+    if ($DatabaseHost -or $DatabaseName -or $DatabaseUser) {
+        if (-not ($DatabaseHost -and $DatabaseName -and $DatabaseUser)) {
+            throw "Provide DatabaseHost, DatabaseName, and DatabaseUser together."
+        }
+        foreach ($databaseValue in @($DatabaseHost, $DatabaseName, $DatabaseUser)) {
+            if ($databaseValue -notmatch '\A[a-zA-Z0-9._-]+\z') {
+                throw "Database host, name and user must contain only letters, numbers, dots, underscores or hyphens."
+            }
+        }
+        $configContent = Get-Content -LiteralPath $localConfig -Raw
+        $configContent = $configContent.Replace("'host' => 'localhost'", "'host' => '$DatabaseHost'")
+        $configContent = $configContent.Replace("'name' => 'cpanelprefix_rmt_ministry'", "'name' => '$DatabaseName'")
+        $configContent = $configContent.Replace("'user' => 'cpanelprefix_rmt_user'", "'user' => '$DatabaseUser'")
+        $configContent = $configContent.Replace("'password' => 'REPLACE_WITH_A_LONG_RANDOM_PASSWORD'", "'password' => 'ENTER_VPANEL_PASSWORD_HERE'")
+        Set-Content -LiteralPath $localConfig -Value $configContent -Encoding ASCII
+    }
 
     $privateHtaccess = Join-Path $privateStage ".htaccess"
     Set-Content -LiteralPath $privateHtaccess -Encoding ASCII -Value "Require all denied"
