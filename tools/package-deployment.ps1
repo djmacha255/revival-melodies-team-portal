@@ -1,6 +1,6 @@
 param(
     [string]$OutputPath = "",
-    [ValidateSet("cpanel", "byet")]
+    [ValidateSet("cpanel", "byet", "byet-htdocs")]
     [string]$Target = "cpanel",
     [string]$DatabaseHost = "",
     [string]$DatabaseName = "",
@@ -10,7 +10,11 @@ param(
 $ErrorActionPreference = "Stop"
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 if (-not $OutputPath) {
-    $archiveName = if ($Target -eq "byet") { "RMT-Byet-Deployment.zip" } else { "RMT-Deployment.zip" }
+    $archiveName = switch ($Target) {
+        "byet" { "RMT-Byet-Deployment.zip" }
+        "byet-htdocs" { "RMT-Byet-htdocs-Upload.zip" }
+        default { "RMT-Deployment.zip" }
+    }
     $OutputPath = Join-Path $projectRoot "dist\$archiveName"
 }
 $OutputPath = [System.IO.Path]::GetFullPath($OutputPath)
@@ -18,8 +22,8 @@ $outputDirectory = Split-Path -Parent $OutputPath
 New-Item -ItemType Directory -Force -Path $outputDirectory | Out-Null
 
 $stage = Join-Path ([System.IO.Path]::GetTempPath()) ("rmt-deploy-" + [guid]::NewGuid().ToString("N"))
-$publicFolderName = if ($Target -eq "byet") { "htdocs" } else { "public_html" }
-$publicStage = Join-Path $stage $publicFolderName
+$publicFolderName = if ($Target -eq "cpanel") { "public_html" } else { "htdocs" }
+$publicStage = if ($Target -eq "byet-htdocs") { $stage } else { Join-Path $stage $publicFolderName }
 $privateStage = Join-Path $stage "rmt-private"
 
 function Copy-DirectoryContents([string]$Source, [string]$Destination) {
@@ -30,7 +34,10 @@ function Copy-DirectoryContents([string]$Source, [string]$Destination) {
 }
 
 try {
-    New-Item -ItemType Directory -Force -Path $publicStage, $privateStage | Out-Null
+    New-Item -ItemType Directory -Force -Path $stage | Out-Null
+    if ($Target -ne "byet-htdocs") {
+        New-Item -ItemType Directory -Force -Path $privateStage | Out-Null
+    }
     Copy-Item -LiteralPath (Join-Path $projectRoot "public\index.php") -Destination $publicStage
     Copy-Item -LiteralPath (Join-Path $projectRoot "public\.htaccess") -Destination $publicStage
     Copy-Item -LiteralPath (Join-Path $projectRoot "public\assets") -Destination $publicStage -Recurse -Force
@@ -38,14 +45,19 @@ try {
     New-Item -ItemType Directory -Force -Path $publicUploadsStage | Out-Null
     Copy-Item -LiteralPath (Join-Path $projectRoot "public\uploads\.htaccess") -Destination $publicUploadsStage
 
+    if ($Target -eq "byet-htdocs") {
+        New-Item -ItemType Directory -Force -Path $privateStage | Out-Null
+    }
     Copy-Item -LiteralPath (Join-Path $projectRoot "app") -Destination $privateStage -Recurse -Force
     $privateStorageStage = Join-Path $privateStage "storage"
     New-Item -ItemType Directory -Force -Path $privateStorageStage | Out-Null
     Set-Content -LiteralPath (Join-Path $privateStorageStage ".htaccess") -Encoding ASCII -Value "Require all denied"
     Copy-Item -LiteralPath (Join-Path $projectRoot "schema.sql") -Destination $privateStage
     Copy-Item -LiteralPath (Join-Path $projectRoot "create_admin.php") -Destination $privateStage
-    $deploymentGuide = if ($Target -eq "byet") { "DEPLOY-BYET.txt" } else { "DEPLOY.txt" }
-    Copy-Item -LiteralPath (Join-Path $projectRoot "deployment\$deploymentGuide") -Destination $stage
+    if ($Target -ne "byet-htdocs") {
+        $deploymentGuide = if ($Target -eq "byet") { "DEPLOY-BYET.txt" } else { "DEPLOY.txt" }
+        Copy-Item -LiteralPath (Join-Path $projectRoot "deployment\$deploymentGuide") -Destination $stage
+    }
 
     $sampleConfig = Join-Path $privateStage "app\config.example.php"
     $localConfig = Join-Path $privateStage "app\config.local.php"

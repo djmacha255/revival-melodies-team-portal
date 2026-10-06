@@ -5,9 +5,9 @@ PACKAGE CONTENTS
   rmt-private/  PHP application, database schema, and private PDF storage
 
 BEFORE YOU BEGIN
-  - In the hosting panel, confirm the website's document root. This package
-    assumes the document root is named htdocs. If your panel shows another
-    folder, stop and check before extracting.
+  - In the hosting panel, confirm the website's document root. The
+    RMT-Byet-Deployment.zip package assumes the document root is htdocs and
+    extracts htdocs and rmt-private as sibling folders.
   - Create the database and database user in the hosting panel. Copy the
     database host/name/user shown there. Do not send database passwords in
     chat or screenshots.
@@ -40,9 +40,15 @@ UPLOAD
      do not assume the host permits this until verified.
 
 IF YOUR FILE MANAGER CANNOT ACCESS THE ACCOUNT DIRECTORY ABOVE HTDOCS
-  Stop before uploading the private application inside htdocs. Send a
-  redacted screenshot showing only the folder names and document-root name.
-  The app and signed PDFs should remain outside the web document root.
+  Use the alternate RMT-Byet-htdocs-Upload.zip package from inside htdocs.
+  It places the app, configuration and signed forms in htdocs/rmt-private,
+  which includes access-denial rules. Immediately try to move rmt-private
+  to the account home folder outside htdocs using File Manager's Move action.
+  If the host will not allow this, verify that visiting
+  https://YOUR-SUBDOMAIN/rmt-private/app/config.local.php returns 403/404
+  BEFORE entering the vPanel password or importing real member data.
+  If that private path does not return 403/404, stop; do not use the
+  in-document-root layout for member records or signed PDFs.
 
 IMPORTANT FREE-HOSTING PRIVACY WARNING
   Member profiles can include NIDA numbers and birth dates, and the app
